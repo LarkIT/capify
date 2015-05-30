@@ -1,25 +1,3 @@
-# server-based syntax
-# ======================
-# Defines a single server with a list of roles and multiple properties.
-# You can define all roles on a single server, or split them:
-
-# server 'example.com', user: 'deploy', roles: %w{app db web}, my_property: :my_value
-# server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
-# server 'db.example.com', user: 'deploy', roles: %w{db}
-
-
-
-# role-based syntax
-# ==================
-
-# Defines a role with one or multiple servers. The primary server in each
-# group is considered to be the first unless any  hosts have the primary
-# property set. Specify the username and a domain or IP for the server.
-# Don't use `:all`, it's a meta role.
-
-# role :app, %w{deploy@example.com}, my_property: :my_value
-# role :web, %w{user1@primary.com user2@additional.com}, other_property: :other_value
-# role :db,  %w{deploy@example.com}
 
 
 
@@ -46,6 +24,52 @@
 #    forward_agent: false,
 #    auth_methods: %w(password)
 #  }
+
+## Vagrant SSH Stuff
+
+set :ssh_config,  "tmp/.vagrant_ssh_config"
+set :vagrant_host, 'app'
+
+set :ssh_options, {
+        config:  fetch(:ssh_config),
+}
+
+
+namespace :ssh do
+
+  desc "Generate Vagrant SSH Configuration"
+  task :generate_config do
+    run_locally do
+      ssh_config = fetch(:ssh_config).to_s
+      puts "Generating #{ssh_config}"
+      execute "mkdir -p $(dirname #{ssh_config})" if ssh_config.include? '/'
+      execute "vagrant ssh-config > #{ssh_config}"
+    end
+  end
+
+  before "rvm:hook", "ssh:generate_config"
+
+  desc "Destroy Vagrant SSH Configuration"
+  task :destroy_config do
+    run_locally do
+      puts "Destroying #{:ssh_config}..."
+      execute "/usr/bin/env rm -f #{:ssh_config}"
+    end
+  end
+
+  desc "Pretty-print Vagrant SSH config."
+  task :show_config do
+    require 'PP'
+    netssh_config = Net::SSH::Config.for(fetch(:vagrant_host), [fetch(:ssh_config)])
+    pp netssh_config
+  end
+
+  #after :generate_config, :show_config
+  before :show_config, :generate_config
+
+end
+
+
 #
 # The server-based syntax can be used to override options:
 # ------------------------------------
@@ -59,3 +83,7 @@
 #     auth_methods: %w(publickey password)
 #     # password: 'please use keys'
 #   }
+
+server fetch(:vagrant_host),
+    roles:  %w{web app}
+
