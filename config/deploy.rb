@@ -19,6 +19,11 @@ else
   set :rails_env, 'development'
 end
 
+# Other Rails Settings
+set :migration_role, :app
+set :conditionally_migrate, true
+set :assets_roles, [:web, :app]
+
 # Default branch is :master
 set :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
@@ -91,6 +96,28 @@ set :bundle_flags, '--system --quiet'
 
 ##### END RVM Options
 
+namespace :db do
+
+  desc "Drop DB tables then rerun all migrations and seed database"
+  task :rebuild do
+    on roles(:app) do
+      within release_path do
+        execute :rake, "db:drop RAILS_ENV=#{fetch(:rails_env)}" rescue nil
+        execute :rake, "db:create db:migrate db:seed RAILS_ENV=#{fetch(:rails_env)}"
+      end
+    end
+  end
+
+  desc "migrate db"
+  task :migrate do
+    on roles(:app) do
+      within release_path do
+        execute :rake, "db:migrate RAILS_ENV=#{fetch(:rails_env)}"
+      end
+    end
+  end
+
+end
 
 namespace :deploy do
 
