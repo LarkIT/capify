@@ -61,6 +61,6 @@
 #   }
 
 #server 'dev.example.com',
-#   user: :application,
+#   user: fetch(:application),
 #   roles: %w{web app},
 #   primary: true
