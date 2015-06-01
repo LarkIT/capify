@@ -117,6 +117,15 @@ namespace :db do
     end
   end
 
+  desc "seed db"
+  task :seed do
+    on roles(:app) do
+      within release_path do
+        execute :rake, "db:seed RAILS_ENV=#{fetch(:rails_env)}"
+      end
+    end
+  end
+
 end
 
 namespace :deploy do
