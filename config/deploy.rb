@@ -23,6 +23,7 @@ end
 set :migration_role, :app
 set :conditionally_migrate, true
 set :assets_roles, [:web, :app]
+set :normalize_asset_timestamps, false
 
 # Default branch is :master
 set :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -32,6 +33,8 @@ set :deploy_to, ->{ "/web/#{fetch(:application)}/#{fetch(:rails_env)}" }
 
 # Default value for :scm is :git
 set :scm, :git
+set :deploy_via, :remote_cache
+set :copy_exclude, [ '.git' ]
 
 # Default value for :format is :pretty
 set :format, :pretty
@@ -55,7 +58,8 @@ set :linked_dirs, fetch(:linked_dirs, []).push(
         'tmp/cache',
         'tmp/sockets',
         'vendor/bundle',
-        'public/system'
+        'public/system',
+        #'public/assets', ## included by capistrano/rails/assets
 )
 
 # Default value for default_env is {}
@@ -68,6 +72,8 @@ set :linked_dirs, fetch(:linked_dirs, []).push(
 set :ssh_options, {
   forward_agent: true,
   port: 22222,
+  keepalive: true,
+  keepalive_interval: 60, #seconds - prevents idle timeouts on long tasks
 }
 
 ##### RVM Options
