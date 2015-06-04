@@ -31,6 +31,7 @@
 # http://capistranorb.com/documentation/getting-started/configuration/
 # Feel free to add new variables to customise your setup.
 
+set :bundle_without, %w{production staging}.join(' ') 
 
 
 # Custom SSH Options
