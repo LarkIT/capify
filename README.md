@@ -16,7 +16,7 @@ group :development, :deployment do
   gem 'capistrano', '3.4.0', require: false  #deploy is locked to this version
   gem 'capistrano-rails', '~> 1.1.3', require: false
   gem 'capistrano-rvm', require: false
-  gem 'capistrano-passenger', require: false
+  gem 'capistrano-faster-assets', '~> 1.0'
 end
 ```
 
