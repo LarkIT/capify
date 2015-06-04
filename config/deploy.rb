@@ -11,6 +11,16 @@ set :ruby_version, '2.2.0'
 #   -- determines deploy path and user
 set :application, 'railsapp'
 
+### NO FURTHER CUSTOMIZATIONS SHOULD BE NECESSARY
+#
+
+def colorize(text, color_code)
+          "\e[#{color_code}m#{text}\e[0m"
+end
+
+def red(text); colorize(text, 31); end
+def green(text); colorize(text, 32); end
+
 # Determine Rails Environment
 cap_stage = fetch(:stage).to_s
 if cap_stage.include? 'production' or cap_stage.include? 'staging'
@@ -101,6 +111,24 @@ set :bundle_binstubs, nil
 set :bundle_flags, '--system --quiet'
 
 ##### END RVM Options
+
+## Display GIT Branch
+namespace :git do
+  desc "Display effective git branch"
+  task :display_branch do
+    run_locally do
+      puts green("\n\n\n *** Deploying Git Branch: #{fetch :branch} *** \n\n\n\n")
+      #ssh_config = fetch(:ssh_config).to_s
+      #puts "Generating #{ssh_config}"
+      #execute "mkdir -p $(dirname #{ssh_config})" if ssh_config.include? '/'
+      #execute "vagrant ssh-config > #{ssh_config}"
+    end
+  end
+  # hacky using rvm:hook
+  before 'rvm:hook', 'git:display_branch'
+
+end
+
 
 namespace :db do
 
