@@ -1,5 +1,6 @@
 # config valid only for current version of Capistrano
 lock '3.4.0'
+require 'colorize'
 
 # GIT Repo URL
 set :repo_url, "git@github.com:ORGANIZATION/REPOSITORY.git"
@@ -11,15 +12,21 @@ set :ruby_version, '2.2.0'
 #   -- determines deploy path and user
 set :application, 'railsapp'
 
+## Bundler ENV
+set :bundle_env_variables, {
+        QMAKE: 'qmake-qt4',
+}
+
+## Global SSH Options
+set :ssh_options, {
+  forward_agent: true,
+  port: 1022,
+  keepalive: true,
+  keepalive_interval: 60, #seconds - prevents idle timeouts on long tasks
+}
+
 ### NO FURTHER CUSTOMIZATIONS SHOULD BE NECESSARY
 #
-
-def colorize(text, color_code)
-          "\e[#{color_code}m#{text}\e[0m"
-end
-
-def red(text); colorize(text, 31); end
-def green(text); colorize(text, 32); end
 
 # Determine Rails Environment
 cap_stage = fetch(:stage).to_s
@@ -78,14 +85,6 @@ set :linked_dirs, fetch(:linked_dirs, []).push(
 # Default value for keep_releases is 5
 # set :keep_releases, 5
 
-## Global SSH Options
-set :ssh_options, {
-  forward_agent: true,
-  port: 22222,
-  keepalive: true,
-  keepalive_interval: 60, #seconds - prevents idle timeouts on long tasks
-}
-
 ##### RVM Options
 
 set :rvm_type, :system # We are using a "system" level RVM install
@@ -123,7 +122,7 @@ namespace :git do
       if test("git ls-remote #{repo} #{branch} | grep -q #{branch}")
         # branch appears to be remote, but we should verify that it is pushed
       else
-        fail(red("ERROR: The branch '#{branch}' is not available at #{repo}."))
+        fail("\n\n\nERROR: The branch '#{branch}' is not available at #{repo}.\n\n\n".red)
       end
     end
   end
@@ -131,7 +130,7 @@ namespace :git do
   desc "Display effective git branch"
   task :display_branch do
     run_locally do
-      puts green("\n\n\n *** Deploying Git Branch: #{fetch :branch} *** \n\n\n\n")
+      puts "\n\n\n *** Deploying Git Branch: #{fetch :branch} *** \n\n\n\n".green
       #ssh_config = fetch(:ssh_config).to_s
       #puts "Generating #{ssh_config}"
       #execute "mkdir -p $(dirname #{ssh_config})" if ssh_config.include? '/'
@@ -151,6 +150,7 @@ namespace :db do
   task :rebuild do
     on roles(:app) do
       within release_path do
+        # Stop application somehow?
         execute :rake, "db:drop RAILS_ENV=#{fetch(:rails_env)}" rescue nil
         execute :rake, "db:create db:migrate db:seed RAILS_ENV=#{fetch(:rails_env)}"
       end
@@ -189,5 +189,7 @@ namespace :deploy do
   #     end
   #  end
   #end
+
+  ## Custom tasks should be placed in lib/capistrano/tasks
 
 end
