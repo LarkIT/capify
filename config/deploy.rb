@@ -114,6 +114,20 @@ set :bundle_flags, '--system --quiet'
 
 ## Display GIT Branch
 namespace :git do
+
+  desc "Verify git branch"
+  task :verify_branch do
+    run_locally do
+      branch=fetch(:branch)
+      repo=fetch(:repo_url)
+      if test("git ls-remote #{repo} #{branch} | grep -q #{branch}")
+        # branch appears to be remote, but we should verify that it is pushed
+      else
+        fail(red("ERROR: The branch '#{branch}' is not available at #{repo}."))
+      end
+    end
+  end
+
   desc "Display effective git branch"
   task :display_branch do
     run_locally do
@@ -124,11 +138,12 @@ namespace :git do
       #execute "vagrant ssh-config > #{ssh_config}"
     end
   end
+
   # hacky using rvm:hook
   before 'rvm:hook', 'git:display_branch'
+  before :display_branch, :verify_branch
 
 end
-
 
 namespace :db do
 
