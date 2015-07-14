@@ -79,6 +79,14 @@ set :linked_dirs, fetch(:linked_dirs, []).push(
         #'public/assets', ## included by capistrano/rails/assets
 )
 
+# DB / Asset Sync Options
+set :db_local_clean, true
+set :db_remote_clean, true
+set :assets_dir, %w(public/system) # be careful, this is passed to rsync
+set :local_assets_dir, "public/" # be careful, this is passed to rsync
+set :disallow_pushing, true # safety switch
+
+
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
 
@@ -131,10 +139,6 @@ namespace :git do
   task :display_branch do
     run_locally do
       puts "\n\n\n *** Deploying Git Branch: #{fetch :branch} *** \n\n\n\n".green
-      #ssh_config = fetch(:ssh_config).to_s
-      #puts "Generating #{ssh_config}"
-      #execute "mkdir -p $(dirname #{ssh_config})" if ssh_config.include? '/'
-      #execute "vagrant ssh-config > #{ssh_config}"
     end
   end
 
@@ -143,6 +147,7 @@ namespace :git do
   before :display_branch, :verify_branch
 
 end
+
 
 namespace :db do
 
@@ -190,6 +195,42 @@ namespace :deploy do
   #  end
   #end
 
-  ## Custom tasks should be placed in lib/capistrano/tasks
+## Custom tasks should be placed in lib/capistrano/tasks
 
 end
+
+# Production Sync Tasks
+namespace :prodsync do
+
+  # Sync APP
+  desc 'Sync Production App'
+  task :app do
+    on roles(:app) do
+      within current_path do
+        execute :cap, 'production', 'app:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+      end
+    end
+  end
+
+  # Sync DB Only
+  desc 'Sync Production DB'
+  task :db do
+    on roles(:app) do
+      within current_path do
+        execute :cap, 'production', 'db:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+      end
+    end
+  end
+
+  # Sync ASSETS Only
+  desc 'Sync Production Assets'
+  task :assets do
+    on roles(:app) do
+      within current_path do
+        execute :cap, 'production', 'assets:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+      end
+    end
+  end
+end
+
+## END

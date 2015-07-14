@@ -16,8 +16,9 @@ group :development, :deployment do
   gem 'capistrano', '3.4.0', require: false  #deploy is locked to this version
   gem 'capistrano-rails', '~> 1.1.3', require: false
   gem 'capistrano-rvm', require: false
-  gem 'capistrano-faster-assets', '~> 1.0'
+  gem 'capistrano-faster-assets', '~> 1.0', require: false
+  gem 'capistrano-db-tasks', '~> 1.0', require: false
 end
 ```
 
-* Customize as necessary, hint servers in `config/deploy/ENVIRONMENT.rb`
+* Customize as necessary, hint you need to set servers in `config/deploy/ENVIRONMENT.rb`
