@@ -161,6 +161,15 @@ namespace :db do
     end
   end
 
+  desc "migrate db"
+  task :migrate do
+    on roles(:app) do
+      within release_path do
+        execute :rake, "db:migrate RAILS_ENV=#{fetch(:rails_env)}"
+      end
+    end
+  end
+
   desc "seed db"
   task :seed do
     on roles(:app) do
