@@ -25,12 +25,10 @@ set :ssh_options, {
   keepalive_interval: 60, #seconds - prevents idle timeouts on long tasks
 }
 
-### NO FURTHER CUSTOMIZATIONS SHOULD BE NECESSARY
-#
-
 # Determine Rails Environment
+rails_envs = %w[ development integration staging qa production ]
 cap_stage = fetch(:stage).to_s
-if cap_stage.include? 'production' or cap_stage.include? 'staging'
+if rails_envs.include? cap_stage
   set :rails_env, fetch(:stage)
 else
   set :rails_env, 'development'
@@ -42,8 +40,9 @@ set :conditionally_migrate, true
 set :assets_roles, [:web, :app]
 set :normalize_asset_timestamps, false
 
-# Default branch is :master
+# Default to current branch (unless overridden in stages)
 set :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+set :current_branch, :branch
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, ->{ "/web/#{fetch(:application)}/#{fetch(:rails_env)}" }
@@ -56,8 +55,8 @@ set :copy_exclude, [ '.git' ]
 # Default value for :format is :pretty
 set :format, :pretty
 
-# Default value for :log_level is :debug
-set :log_level, :debug
+# Default value for :log_level is :debug, lets use :info to quiet it down
+set :log_level, :info
 
 # Default value for :pty is false
 set :pty, true
