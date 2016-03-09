@@ -17,7 +17,7 @@ group :development, :deployment do
   gem 'capistrano-rails', '~> 1.1.3', require: false
   gem 'capistrano-rvm', require: false
   gem 'capistrano-faster-assets', '~> 1.0', require: false
-  gem 'capistrano-db-tasks', '~> 1.0', require: false
+  gem 'capistrano-db-tasks', '~> 0.4', require: false
 end
 ```
 
