@@ -6,7 +6,7 @@ set :branch, 'master' #force production to master branch
 #server 'www.example.com',
 #   user: 'railsapp',
 #   port: 1022,
-#   roles: %w{web app},
+#   roles: %w{web app db},
 #   primary: true
 
 
