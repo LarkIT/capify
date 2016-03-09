@@ -215,7 +215,9 @@ namespace :prodsync do
   task :app do
     on roles(:app) do
       within current_path do
-        execute :cap, 'production', 'app:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        with rails_env: fetch(:rails_env) do
+          execute :cap, 'production', 'app:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        end
       end
     end
   end
@@ -225,7 +227,9 @@ namespace :prodsync do
   task :db do
     on roles(:app) do
       within current_path do
-        execute :cap, 'production', 'db:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        with rails_env: fetch(:rails_env) do
+          execute :cap, 'production', 'db:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        end
       end
     end
   end
@@ -235,7 +239,9 @@ namespace :prodsync do
   task :assets do
     on roles(:app) do
       within current_path do
-        execute :cap, 'production', 'assets:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        with rails_env: fetch(:rails_env) do
+          execute :cap, 'production', 'assets:local:sync', 'SKIP_DATA_SYNC_CONFIRM=true'
+        end
       end
     end
   end
