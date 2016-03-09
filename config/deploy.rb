@@ -142,7 +142,7 @@ namespace :git do
   end
 
   # hacky using rvm:hook
-  before 'rvm:hook', 'git:display_branch'
+  before 'deploy', 'git:display_branch'
   before :display_branch, :verify_branch
 
 end
