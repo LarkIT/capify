@@ -65,6 +65,8 @@ set :pty, true
 set :linked_files, fetch(:linked_files, []).push(
         'config/database.yml',
         'config/secrets.yml',
+        '.ruby-gemset',
+        '.ruby-version',
 )
 
 # Default value for linked_dirs is []
